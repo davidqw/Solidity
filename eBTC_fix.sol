@@ -36,12 +36,17 @@ pragma solidity ^0.4.16;
     }
      
      
-     function distributeEBTC(address[] addresses) onlyOwner {
+     function distributeEBTC(address[] addresses) onlyOwner returns (bool a)  {
          for (uint i = 0; i < addresses.length; i++) {
-             balances[owner] -= 245719916000;
-             balances[addresses[i]] += 245719916000;
-             Transfer(owner, addresses[i], 245719916000);
-         }
+             if (balances[owner] > 0) {
+                 balances[owner]-= 245719916000;
+                 balances[addresses[i]] += 245719916000;
+                 Transfer(owner, addresses[i], 245719916000);
+                 return true;
+             }else{
+                 return false;
+             }
+        }
      }
      
   
