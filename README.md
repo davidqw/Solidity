@@ -15,7 +15,10 @@ my way to blockchain
 
 ### Plan:
 
-1. REview和实践已经保存的智能合约
+1. Review和实践已经保存的智能合约
+
+    > 完成BAT
+
 2. 编写自己的代币合约
 3. 编写自己的多重调用合约
 4. Raiden 0x
