@@ -1,6 +1,8 @@
 pragma solidity ^0.4.17;
+//荷兰式拍卖合约
 
 /// @title ERC223ReceivingContract - Standard contract implementation for compatibility with ERC223 tokens.
+//ERC223规范
 contract ERC223ReceivingContract {
 
     /// @dev Function that is called when a user or another contract wants to transfer funds.
@@ -43,6 +45,7 @@ contract Token {
 
     /*
      * ERC 223
+        ERC223增加方法
      */
     function transfer(address _to, uint256 _value, bytes _data) public returns (bool success);
 
@@ -60,7 +63,7 @@ contract Token {
 contract StandardToken is Token {
 
     /*
-     * Data structures
+     * Data structures 数据结构
      */
     mapping (address => uint256) balances;
     mapping (address => mapping (address => uint256)) allowed;
