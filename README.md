@@ -18,6 +18,7 @@ my way to blockchain
 1. Review和实践已经保存的智能合约
 
     > 完成BAT
+    
     > POStoken 80%
 
 2. 编写自己的代币合约
