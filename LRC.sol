@@ -234,7 +234,7 @@ contract LRCLongTermHoldingContract {
     /// @dev Deposit LRC.
     function depositLRC() payable {
         require(depositStartTime > 0);
-        require(msg.value == 0);
+        require(msg.value == 0); // 0以太坊
         require(now >= depositStartTime && now <= depositStopTime);
         
         var lrcToken = Token(lrcTokenAddress);
@@ -244,7 +244,7 @@ contract LRCLongTermHoldingContract {
 
         require(lrcAmount > 0);
 
-        var record = records[msg.sender];
+        var record = records[msg.sender]; //mapping
         record.lrcAmount += lrcAmount;
         record.timestamp = now;
         records[msg.sender] = record;
