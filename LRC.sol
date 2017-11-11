@@ -148,11 +148,13 @@ contract LRCLongTermHoldingContract {
     uint public depositStartTime    = 0;
     uint public depositStopTime     = 0;
 
+
+    //参数记录
     struct Record {
         uint lrcAmount;
         uint timestamp;
     }
-
+    //映射
     mapping (address => Record) records;
     
     /* 
@@ -160,10 +162,10 @@ contract LRCLongTermHoldingContract {
      */
 
     /// Emitted when program starts.
-    event Started(uint _time);
+    event Started(uint _time); //开始时间
 
     /// Emitted when all LRC are drained.
-    event Drained(uint _lrcAmount);
+    event Drained(uint _lrcAmount); //提现记录
 
     /// Emitted for each sucuessful deposit.
     uint public depositId = 0;
@@ -177,7 +179,7 @@ contract LRCLongTermHoldingContract {
     /// @param _lrcTokenAddress LRC ERC20 token address
     function LRCLongTermHoldingContract(address _lrcTokenAddress, address _owner) {
         require(_lrcTokenAddress != address(0));
-        require(_owner != address(0));
+        require(_owner != address(0));  
 
         lrcTokenAddress = _lrcTokenAddress;
         owner = _owner;
@@ -186,7 +188,7 @@ contract LRCLongTermHoldingContract {
     /*
      * PUBLIC FUNCTIONS
      */
-
+    //开始调用函数
     /// @dev start the program.
     function start() public {
         require(msg.sender == owner);
@@ -194,7 +196,7 @@ contract LRCLongTermHoldingContract {
 
         depositStartTime = now;
         depositStopTime  = depositStartTime + DEPOSIT_PERIOD;
-
+        //event
         Started(depositStartTime);
     }
 
