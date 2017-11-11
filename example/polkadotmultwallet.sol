@@ -16,6 +16,9 @@ contract WalletEvents {
 
   // this contract only has six types of events: it can accept a confirmation, in which case
   // we record owner and operation (hash) alongside it.
+  //log记录
+
+  //规范 event首字母大写 方法第二个单词大写
   event Confirmation(address owner, bytes32 operation);
   event Revoke(address owner, bytes32 operation);
 
