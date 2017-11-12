@@ -4,8 +4,7 @@
       host: "localhost",
       port: 8546,
       network_id: "*" // Match any network id
-    }
-  },
+    },
     ropsten: {
       host: "localhost",
       port: 8545,
