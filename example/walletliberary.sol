@@ -16,9 +16,6 @@ contract WalletEvents {
 
   // this contract only has six types of events: it can accept a confirmation, in which case
   // we record owner and operation (hash) alongside it.
-  //log记录
-
-  //规范 event首字母大写 方法第二个单词大写
   event Confirmation(address owner, bytes32 operation);
   event Revoke(address owner, bytes32 operation);
 
@@ -95,8 +92,6 @@ contract WalletLibrary is WalletEvents {
     if (confirmAndCheck(_operation))
       _;
   }
-  // throw unless the contract is not yet initialized.
-  modifier only_uninitialized { if (m_numOwners > 0) throw; _; }
 
   // METHODS
 
@@ -109,7 +104,6 @@ contract WalletLibrary is WalletEvents {
 
   // constructor is given number of sigs required to do protected "onlymanyowners" transactions
   // as well as the selection of addresses capable of confirming them.
-  //初始化
   function initMultiowned(address[] _owners, uint _required) only_uninitialized {
     m_numOwners = _owners.length + 1;
     m_owners[1] = uint(msg.sender);
@@ -217,7 +211,8 @@ contract WalletLibrary is WalletEvents {
     m_spentToday = 0;
   }
 
-
+  // throw unless the contract is not yet initialized.
+  modifier only_uninitialized { if (m_numOwners > 0) throw; _; }
 
   // constructor - just pass on the owner array to the multiowned and
   // the limit to daylimit
@@ -453,7 +448,7 @@ contract Wallet is WalletEvents {
   }
 
   // FIELDS
-  address constant _walletLibrary = 0x863df6bfa4469f3ead0be8f9f2aae51c91a907b4;
+  address constant _walletLibrary = 0xcafecafecafecafecafecafecafecafecafecafe;
 
   // the number of owners that must confirm the same operation before it is run.
   uint public m_required;
