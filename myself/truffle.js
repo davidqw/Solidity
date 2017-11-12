@@ -2,9 +2,19 @@
   networks: {
     development: {
       host: "localhost",
-      port: 8545,
+      port: 8546,
       network_id: "*" // Match any network id
     }
+  },
+    ropsten: {
+      host: "localhost",
+      port: 8545,
+      gas: 7000000,
+      before_timeout: 1000000, 
+      test_timeout: 1000000, 
+      network_id: "*",
+      from: '0x060bbae03EF52F1B47db247215Da0FB87FF4B2EB'
+    } 
   },
   mocha: {
     reporter: 'eth-gas-reporter'
