@@ -121,7 +121,7 @@ contract WalletLibrary is WalletEvents {
     }
     m_required = _required;
   }
-
+  //撤销
   // Revokes a prior confirmation of the given operation
   function revoke(bytes32 _operation) external {
     uint ownerIndex = m_ownerIndex[uint(msg.sender)];
