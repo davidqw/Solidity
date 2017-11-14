@@ -2,7 +2,7 @@
   networks: {
     development: {
       host: "localhost",
-      port: 8546,
+      port: 8545,
       network_id: "*" // Match any network id
     },
     ropsten: {
@@ -14,10 +14,10 @@
       network_id: "*",
       from: '0x060bbae03EF52F1B47db247215Da0FB87FF4B2EB'
     } 
-  },
-  mocha: {
+  }/*,
+ mocha: {
     reporter: 'eth-gas-reporter'
-  }
+  }*/
 };
 
 /*
