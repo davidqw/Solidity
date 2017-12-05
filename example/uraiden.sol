@@ -1,6 +1,7 @@
 pragma solidity ^0.4.17;
 
 library ECVerify {
+    //验证库
 
     function ecverify(bytes32 hash, bytes signature) internal pure returns (address signature_address) {
         require(signature.length == 65);
@@ -37,6 +38,7 @@ library ECVerify {
 }
 /// @title Base Token contract - Functions to be implemented by token contracts.
 contract Token {
+    //ERC20标准
     /*
      * Implements ERC 20 standard.
      * https://github.com/ethereum/EIPs/blob/f90864a3d2b2b45c4decf95efd26b3f0c276051a/EIPS/eip-20-token-standard.md
@@ -44,6 +46,7 @@ contract Token {
      *
      *  Added support for the ERC 223 "tokenFallback" method in a "transfer" function with a payload.
      *  https://github.com/ethereum/EIPs/issues/223
+     //ERC223标准
      */
 
     /*
@@ -113,9 +116,11 @@ contract Token {
 }
 /// @title Raiden MicroTransfer Channels Contract.
 contract RaidenMicroTransferChannels {
+    //合约
 
     /*
      *  Data structures
+     *  数据结构
      */
 
     uint32 public challenge_period;
@@ -124,6 +129,7 @@ contract RaidenMicroTransferChannels {
     string public constant version = '0.1.0';
 
     // We temporarily limit total token deposits in a channel to 100 tokens with 18 decimals.
+    //代币的最大限制
     // This was calculated just for RDN with its current (as of 30/11/2017) price and should
     // not be considered to be the same for other tokens.
     // This is just for the bug bounty release, as a safety measure.
@@ -136,17 +142,18 @@ contract RaidenMicroTransferChannels {
 
     // 28 (deposit) + 4 (block no settlement)
     struct Channel {
+        //通道结构
         // uint192 is the maximum uint size needed for deposit based on a
         // 10^8 * 10^18 token totalSupply.
-        uint192 deposit;
+        uint192 deposit; //uint192 代币最大值
 
         // Used in creating a unique identifier for the channel between a sender and receiver.
         // Supports creation of multiple channels between the 2 parties and prevents
         // replay of messages in later channels.
-        uint32 open_block_number;
+        uint32 open_block_number;//开放区块
     }
 
-    struct ClosingRequest {
+    struct ClosingRequest {//关闭区块数据结构
         uint192 closing_balance;
         uint32 settle_block_number;
     }
@@ -187,15 +194,15 @@ contract RaidenMicroTransferChannels {
     /// after a sender requests the closing of the channel without the receiver's signature.
     function RaidenMicroTransferChannels(address _token_address, uint32 _challenge_period) public {
         require(_token_address != 0x0);
-        require(addressHasCode(_token_address));
-        require(_challenge_period >= 500);
+        require(addressHasCode(_token_address));//解码确定有代码
+        require(_challenge_period >= 500);//最小500个区块
 
-        token = Token(_token_address);
+        token = Token(_token_address);//获取代币
 
         // Check if the contract is indeed a token contract
-        require(token.totalSupply() > 0);
+        require(token.totalSupply() > 0);//确定是代币合约
 
-        challenge_period = _challenge_period;
+        challenge_period = _challenge_period;//参数传递
     }
 
     /*
@@ -215,7 +222,7 @@ contract RaidenMicroTransferChannels {
         pure
         returns (bytes32 data)
     {
-        return keccak256(_sender_address, _receiver_address, _open_block_number);
+        return keccak256(_sender_address, _receiver_address, _open_block_number);//编码
     }
 
     /// @dev Returns the sender address extracted from the balance proof.
@@ -262,7 +269,7 @@ contract RaidenMicroTransferChannels {
     /// @param _data Receiver address in bytes.
     function tokenFallback(address _sender_address, uint256 _deposit, bytes _data) external {
         // Make sure we trust the token
-        require(msg.sender == address(token));
+        require(msg.sender == address(token)); //消息发送者是代币合约
 
         uint192 deposit = uint192(_deposit);
         require(deposit == _deposit);
@@ -292,7 +299,7 @@ contract RaidenMicroTransferChannels {
     /// the sender's token deposit to this contract, compatibility with ERC20 tokens.
     /// @param _receiver_address The address that receives tokens.
     /// @param _deposit The amount of tokens that the sender escrows.
-    function createChannelERC20(address _receiver_address, uint192 _deposit) external {
+    function createChannelERC20(address _receiver_address, uint192 _deposit) external {//创建私有状态通道
         createChannelPrivate(msg.sender, _receiver_address, _deposit);
 
         // transferFrom deposit from sender to contract
