@@ -149,15 +149,188 @@ contract RaidenMicroTransferChannels{
         require(token.transferFrom(msg.sender, address(this), _deposit));
     };
 
-    
+    function topUPERC20(
+        address _receiver_address,
+        uint32 _open_block_number,
+        uint192 _added_deposit
+    )external
+    {
+        updateInternalBalanceStructs(
+            msg.sender,
+            _receiver_address,
+            _open_block_number,
+            _added_deposit
+        );
+        require(token.transferFrom(msg.sender,address(this),_added_deposit));
+    };
+
+    function uncooperativeClose(
+        address _receiver_address,
+        uint32 _open_block_number,
+        uint192 _balance,
+        bytes _balance_msg_sig
+    )external
+    {
+        address sender = verifyBalanceProof(_receiver_address,_open_block_number,_balance,_balance_msg_sig);
+
+        if(msg.sender == _receiver_address){
+            settleChannel(sender,_receiver_address,_open_block_number,_balance);
+        }else{
+            initChallengePeriod(_receiver_address,_open_block_number,_balance)
+        }
+    };
+
+    function cooperativeClose(
+        address _receiver_address,
+        uint32 _open_block_number,
+        uint192 _balance,
+        bytes _balance_msg_sig,
+        bytes _closing_sig
+    )external{
+        address receiver = ECVerify.ecverify(keccak256(_balance_msg_sig),_closing_sig);
+        require(receiver == _receiver_address);
+        address sender = verifyBalanceProof(_receiver_address,_open_block_number,_balance,_balance_msg_sig);
+        require(msg.sender == sender);
+
+        settleChannel(sender,receiver,_open_block_number,_balance);
+    }
+
+    function getChannelInfo(
+        address _sender_address,
+        address _receiver_address,
+        uint32 _open_block_number)
+        external
+        constant
+        returns(bytes32,uint192,uint32,uint192)
+        {
+            bytes32 key = getKey(_sender_address, _receiver_address, _open_block_number);
+            require(channels[key].open_block_number>0);
+            return(
+            key,
+            channels[key].deposit,
+            closing_requests[key].settle_block_number,
+            closing_requests[key].closing_balance)
+        };
+
+    function settle(address _receiver_address,uint32 _open_block_number) external {
+            bytes32 key = getKey(_sender_address, _receiver_address, _open_block_number);
+
+            require(closing_requests[key].settle_block_number > 0);
+
+            require(block.number > closing_requests[key].settle_block_number);
+
+            settleChannel(msg.sender,_receiver_address,_open_block_number,closing_requests[key].closing_balance);
+        };
+
+    function createChannelPrivate(address _sender_address,address _receiver_address,uint192 _deposit) private 
+        {
+            require(_deposit <= channel_deposit_bugbounty_limit);
+
+            uint32 open_block_number = uint32(block.number);
+
+            bytes32 key = getKey(_sender_address, _receiver_address, open_block_number);
+
+            require(channels[key].deposit == 0);
+
+            require(channels[key].open_block_number == 0);
+
+            require(closing_requests[key].settle_block_number == 0);
+
+            //日志记录
+            channels[key] = Channel({deposit: _deposit, open_block_number: open_block_number});
+            ChannelCreated(_sender_address, _receiver_address, _deposit);
+        };
+
+    function updateInternalBalanceStructs(
+            address _sender_address,
+            address _receiver_address,
+            uint32 _open_block_number,
+            uint192 _added_deposit)
+            private
+            {
+                require(_added_deposit) > 0;
+                require(_open_block_number>0);
+
+                bytes32 key = getKey(_sender_address,_receiver_address,_open_block_number);
+
+                require(channels[key].deposit > 0);
+
+                require(closing_requests[key].settle_block_number == 0);
+
+                require(channels[key].deposit + _added_deposit <= channel_deposit_bugbounty_limit);
+
+                channels[keys].deposit += _added_deposit;
+
+                assert(channels[key].deposit > _added_deposit);
+
+                ChannelToppedUp(_sender_address,_receiver_address,_open_block_number,_added_deposit); 
+            };
+    function initChallengePeriod(
+        address _receiver_address,
+        uint32 _open_block_number,
+        uint192 _balance)
+        private
+        {
+            bytes32 key = getKey(_sender_address,_receiver_address,_open_block_number)
+
+            require(closing_requests[key].settle_block_number == 0);
+            require(_balance <= channels[key].deposit);
+
+            // Mark channel as closed
+            closing_requests[key].settle_block_number = uint32(block.number) + challenge_period;
+            closing_requests[key].closing_balance = _balance;
+            ChannelCloseRequested(msg.sender, _receiver_address, _open_block_number, _balance);
+        };
+
+    function settleChannel(
+        address _sender_address,
+        address _receiver_address,
+        uint32 _open_block_number,
+        uint192 _balance)
+        private
+        {
+            bytes32 key = getKey(_sender_address, _receiver_address, _open_block_number);
+            Channel memory channel = channels[key];
+
+            require(channel.open_block_number > 0);
+            require(_balance <= channel.deposit);
+            delete channels[key];
+            delete closing_requests[key];
+
+            require(token.transfer(_receiver,_balance);
+
+            require(token.transfer(_sender_address,channel,deposit - _balance));
+
+            ChannelSetted(_sender_address,_receiver_address,_open_block_number,_balance);
+        };
+
+    function addressFromData(bytes b) internal pure returns (address){
+        bytes20 addr;
+        assembly{
+            addr := mload(add(b,0x20));
+        }
+        return address(addr);
+    };
 
 
+    function blockNumberFromData(bytes b) internal pure returns(address){
+        bytes4 block_number;
+        assembly{
+            block_number := mload(add(b,0x34));
+        };
+        return uint32(block_number);
+    };
 
+    function addressHasCode(address _contract) internal constant returns (bools)
+    {
+        uint size;
+        assembly{
+            size := extcodesize(_contract);
+        }
 
-
-
-
-}
+        return size > 0; 
+    };
+};
 
 
 
